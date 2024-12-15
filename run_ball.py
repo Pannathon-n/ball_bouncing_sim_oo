@@ -31,7 +31,11 @@ class BouncingSimulator:
 
         tom = turtle.Turtle()
         self.my_paddle = paddle.Paddle(200, 50, (255, 0, 0), tom)
-        self.my_paddle.set_location([0, -50])
+        self.my_paddle.set_location([0, -250])
+
+        jerry = turtle.Turtle()
+        self.my_second_paddle = paddle.Paddle(200, 50, (0, 0, 255), jerry)
+        self.my_second_paddle.set_location([0, 250])
 
         self.screen = turtle.Screen()
 
@@ -67,18 +71,23 @@ class BouncingSimulator:
     def __redraw(self):
         turtle.clear()
         self.my_paddle.clear()
+        self.my_second_paddle.clear()
         self.__draw_border()
         self.my_paddle.draw()
+        self.my_second_paddle.draw()
         for i in range(len(self.ball_list)):
             self.ball_list[i].draw()
         turtle.update()
-        heapq.heappush(self.pq, my_event.Event(self.t + 1.0/self.HZ, None, None, None))
+        heapq.heappush(self.pq, my_event.Event(self.t + 1.0 / self.HZ, None, None, None))
 
     def __paddle_predict(self):
         for i in range(len(self.ball_list)):
             a_ball = self.ball_list[i]
             dtP = a_ball.time_to_hit_paddle(self.my_paddle)
             heapq.heappush(self.pq, my_event.Event(self.t + dtP, a_ball, None, self.my_paddle))
+
+            dtP2 = a_ball.time_to_hit_paddle(self.my_second_paddle)
+            heapq.heappush(self.pq, my_event.Event(self.t + dtP2, a_ball, None, self.my_second_paddle))
 
     # move_left and move_right handlers update paddle positions
     def move_left(self):
@@ -90,6 +99,16 @@ class BouncingSimulator:
         if (self.my_paddle.location[0] + self.my_paddle.width/2 + 40) <= self.canvas_width:
             self.my_paddle.set_location([self.my_paddle.location[0] + 40, self.my_paddle.location[1]])
 
+    def move_second_paddle_left(self):
+        if (self.my_second_paddle.location[0] - self.my_second_paddle.width / 2 - 40) >= -self.canvas_width:
+            self.my_second_paddle.set_location(
+                [self.my_second_paddle.location[0] - 40, self.my_second_paddle.location[1]])
+
+    def move_second_paddle_right(self):
+        if (self.my_second_paddle.location[0] + self.my_second_paddle.width / 2 + 40) <= self.canvas_width:
+            self.my_second_paddle.set_location(
+                [self.my_second_paddle.location[0] + 40, self.my_second_paddle.location[1]])
+
     def run(self):
         # initialize pq with collision events and redraw event
         for i in range(len(self.ball_list)):
@@ -100,6 +119,9 @@ class BouncingSimulator:
         self.screen.listen()
         self.screen.onkey(self.move_left, "Left")
         self.screen.onkey(self.move_right, "Right")
+
+        self.screen.onkey(self.move_second_paddle_left, "a")
+        self.screen.onkey(self.move_second_paddle_right, "d")
 
         while (True):
             e = heapq.heappop(self.pq)
@@ -125,6 +147,8 @@ class BouncingSimulator:
                 self.__redraw()
             elif (ball_a is not None) and (ball_b is None) and (paddle_a is not None):
                 ball_a.bounce_off_paddle()
+            elif (ball_a is not None) and (ball_b is None) and (paddle_a == self.my_second_paddle):
+                ball_a.bounce_off_paddle()
 
             self.__predict(ball_a)
             self.__predict(ball_b)
@@ -137,6 +161,6 @@ class BouncingSimulator:
         turtle.done()
 
 # num_balls = int(input("Number of balls to simulate: "))
-num_balls = 10
+num_balls = 1
 my_simulator = BouncingSimulator(num_balls)
 my_simulator.run()
