@@ -5,6 +5,7 @@ import random
 import heapq
 import paddle
 import math
+import time
 
 class GameOverScreen:
     def __init__(self):
@@ -28,13 +29,52 @@ class GameOverScreen:
         self.screen.listen()
         self.screen.onkey(restart_callback, "r")  # Press 'R' to restart
 
+class GameTimer:
+    def __init__(self, duration, screen):
+        self.duration = duration  # Total duration in seconds
+        self.start_time = time.time()  # Record the start time
+        self.timer_turtle = turtle.Turtle()
+        self.timer_turtle.hideturtle()
+        self.timer_turtle.penup()
+        self.screen = screen
+
+        # Position the timer at the top-left corner
+        self.timer_turtle.goto(-self.screen.window_width() // 2 + 20, self.screen.window_height() // 2 - 50)
+
+    def update(self):
+        """
+        Update the timer display based on real elapsed time.
+
+        Returns:
+            bool: True if the timer has reached or exceeded the duration, False otherwise.
+        """
+        elapsed_time = time.time() - self.start_time
+        remaining_time = max(0, self.duration - elapsed_time)
+
+        # Clear the previous display and draw the updated time
+        self.timer_turtle.clear()
+        self.timer_turtle.write(
+            f"Time: {int(remaining_time)}s",
+            font=("Arial", 16, "bold"),
+            align="left"
+        )
+
+        # Return whether the timer is finished
+        return remaining_time == 0
+
+    def clear(self):
+        """Clear the timer display."""
+        self.timer_turtle.clear()
+
 class BouncingSimulator:
-    def __init__(self, num_balls):
+    def __init__(self, num_balls, time_limit=15):
         self.num_balls = num_balls
+        self.time_limit = time_limit
         self.ball_list = []
         self.t = 0.0
         self.pq = []
         self.HZ = 4
+        self.screen = turtle.Screen()
         turtle.speed(0)
         turtle.tracer(0)
         turtle.hideturtle()
@@ -47,7 +87,7 @@ class BouncingSimulator:
         for i in range(self.num_balls):
             x = -self.canvas_width + (i+1)*(2*self.canvas_width/(self.num_balls+1))
             y = 0.0
-            speed = 10  # Set a fixed speed for all balls
+            speed = 15  # Set a fixed speed for all balls
             angle = random.uniform(0, 2 * math.pi)  # Random direction
             vx = speed * math.cos(angle)
             vy = speed * math.sin(angle)
@@ -55,12 +95,14 @@ class BouncingSimulator:
             self.ball_list.append(ball.Ball(ball_radius, x, y, vx, vy, ball_color, i))
 
         tom = turtle.Turtle()
-        self.my_paddle = paddle.Paddle(200, 50, (255, 0, 0), tom)
-        self.my_paddle.set_location([0, -250])
+        self.my_paddle = paddle.Paddle(200, 10, (255, 0, 0), tom)
+        self.my_paddle.set_location([0, -260])
 
-        jerry = turtle.Turtle()
-        self.my_second_paddle = paddle.Paddle(200, 50, (0, 0, 255), jerry)
-        self.my_second_paddle.set_location([0, 250])
+        Khaw = turtle.Turtle()
+        self.my_second_paddle = paddle.Paddle(200, 10, (0, 0, 255), Khaw)
+        self.my_second_paddle.set_location([0, 260])
+
+        self.timer = GameTimer(self.time_limit, self.screen)
 
         self.screen = turtle.Screen()
 
@@ -138,13 +180,17 @@ class BouncingSimulator:
         def restart():
             print("Restarting game...")
 
+            self.timer.timer_turtle.clear()
+
             game_over_screen.clear_message()
 
             self.my_paddle.clear()
             self.my_second_paddle.clear()
             
-            self.__init__(self.num_balls)  # Reinitialize the simulator
+            self.__init__(self.num_balls,)  # Reinitialize the simulator
             self.run()  # Restart the game loop
+
+        self.timer = GameTimer(self.time_limit, self.screen)
 
         # initialize pq with collision events and redraw event
         for i in range(len(self.ball_list)):
@@ -197,6 +243,11 @@ class BouncingSimulator:
 
             # regularly update the prediction for the paddle as its position may always be changing due to keyboard events
             self.__paddle_predict()
+
+            if self.timer.update():
+                game_over_screen.display_message("Time's Up! It's a Draw!")
+                game_over_screen.listen_for_restart(restart)
+                break
 
 
         # hold the window; close it by clicking the window close 'x' mark
