@@ -32,8 +32,7 @@ class Ball:
         self.count += 1
 
     def bounce_off_horizontal_wall(self):
-        self.vy = -self.vy
-        self.count += 1
+        return True
 
     def bounce_off(self, that):
         dx  = that.x - self.x

@@ -4,6 +4,29 @@ import turtle
 import random
 import heapq
 import paddle
+import math
+
+class GameOverScreen:
+    def __init__(self):
+        self.text_turtle = turtle.Turtle()
+        self.text_turtle.hideturtle()
+        self.text_turtle.penup()
+        self.screen = turtle.Screen()
+
+    def display_message(self, message, color=(255, 0, 0), font=("Arial", 24, "bold")):
+        self.text_turtle.clear()
+        self.text_turtle.color(color)
+        self.text_turtle.goto(0, 50)  # Center the text slightly higher
+        self.text_turtle.write(message, align="center", font=font)
+        self.text_turtle.goto(0, -20)
+        self.text_turtle.write("Press 'R' to Restart", align="center", font=("Arial", 18, "italic"))
+
+    def clear_message(self):
+        self.text_turtle.clear()
+
+    def listen_for_restart(self, restart_callback):
+        self.screen.listen()
+        self.screen.onkey(restart_callback, "r")  # Press 'R' to restart
 
 class BouncingSimulator:
     def __init__(self, num_balls):
@@ -24,8 +47,10 @@ class BouncingSimulator:
         for i in range(self.num_balls):
             x = -self.canvas_width + (i+1)*(2*self.canvas_width/(self.num_balls+1))
             y = 0.0
-            vx = 10*random.uniform(-1.0, 1.0)
-            vy = 10*random.uniform(-1.0, 1.0)
+            speed = 10  # Set a fixed speed for all balls
+            angle = random.uniform(0, 2 * math.pi)  # Random direction
+            vx = speed * math.cos(angle)
+            vy = speed * math.sin(angle)
             ball_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             self.ball_list.append(ball.Ball(ball_radius, x, y, vx, vy, ball_color, i))
 
@@ -110,6 +135,17 @@ class BouncingSimulator:
                 [self.my_second_paddle.location[0] + 40, self.my_second_paddle.location[1]])
 
     def run(self):
+        def restart():
+            print("Restarting game...")
+
+            game_over_screen.clear_message()
+
+            self.my_paddle.clear()
+            self.my_second_paddle.clear()
+            
+            self.__init__(self.num_balls)  # Reinitialize the simulator
+            self.run()  # Restart the game loop
+
         # initialize pq with collision events and redraw event
         for i in range(len(self.ball_list)):
             self.__predict(self.ball_list[i])
@@ -122,6 +158,8 @@ class BouncingSimulator:
 
         self.screen.onkey(self.move_second_paddle_left, "a")
         self.screen.onkey(self.move_second_paddle_right, "d")
+
+        game_over_screen = GameOverScreen()
 
         while (True):
             e = heapq.heappop(self.pq)
@@ -141,14 +179,18 @@ class BouncingSimulator:
                 ball_a.bounce_off(ball_b)
             elif (ball_a is not None) and (ball_b is None) and (paddle_a is None):
                 ball_a.bounce_off_vertical_wall()
-            elif (ball_a is None) and (ball_b is not None) and (paddle_a is None):
-                ball_b.bounce_off_horizontal_wall()
             elif (ball_a is None) and (ball_b is None) and (paddle_a is None):
                 self.__redraw()
             elif (ball_a is not None) and (ball_b is None) and (paddle_a is not None):
                 ball_a.bounce_off_paddle()
             elif (ball_a is not None) and (ball_b is None) and (paddle_a == self.my_second_paddle):
                 ball_a.bounce_off_paddle()
+            elif (ball_a is None) and (ball_b is not None) and (paddle_a is None):
+                game_over = ball_b.bounce_off_horizontal_wall()
+                if game_over:
+                    game_over_screen.display_message("Game Over!")  # Show game over screen
+                    game_over_screen.listen_for_restart(restart)  # Listen for restart
+                    break  # Exit the while loop to allow restart
 
             self.__predict(ball_a)
             self.__predict(ball_b)
