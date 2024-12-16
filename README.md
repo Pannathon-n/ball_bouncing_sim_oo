@@ -10,7 +10,7 @@ Features:
 - **Physics-based Ball Motion:** Balls move and collide with walls, paddles, using realistic physics.
 - **Two Paddles:** One controlled with arrow keys, the other with `A` and `D` keys.
 - **Game Timer:** A countdown timer when it reach 0 the game will end in a draw.
-- **Dynamic Background:** The simulation uses a custom background.
+- **Background:** The simulation uses a custom background.
 - **Game Over and Restart Mechanism:** A clear message appears when time runs out or a ball exits the boundary, with the option to restart.
 
 ## How to Install and Run the Project
@@ -96,4 +96,24 @@ link here
 - Ends the game when time runs out or when a ball hits the bottom wall.
 - Uses `GameOverScreen` to display messages and handle game restarts.
 
+## Code Modifications and Extensions
+
+### 1. Added a Second Paddle
+- Extended the `Paddle` class to support two paddles: one controlled by the arrow keys and the other by `A`/`D`.
+- Modified `BouncingSimulator` to manage two paddles independently.
+
+### 2. Game Over on Horizontal Wall Collision
+- Updated the `Ball` class to detect when it hits the horizontal (top or bottom) walls.
+- Integrated a "Game Over" state into `BouncingSimulator` when such collisions occur.
+
+### 3. Added Restart Functionality
+- Created a `GameOverScreen` class to display "Game Over" or "Draw" messages.
+- Implemented a restart mechanism in `BouncingSimulator` to reset the game state when the user presses `R`.
+
+### 4. Implemented a Timer
+- Added the `GameTimer` class to track the game duration.
+- Integrated the timer into `BouncingSimulator` to end the game in a draw when the timer reaches zero.
+
+### 5. Background
+- Added a custom background in `BouncingSimulator`.
 
