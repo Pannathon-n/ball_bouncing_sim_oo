@@ -111,7 +111,7 @@ class Ball:
     def time_to_hit_paddle(self, paddle):
         if (self.vy > 0) and ((self.y + self.size) > (paddle.location[1] - paddle.height/2)):
             return math.inf
-        
+
         if (self.vy < 0) and ((self.y - self.size) < (paddle.location[1] + paddle.height/2)):
             return math.inf
 
