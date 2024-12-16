@@ -89,7 +89,7 @@ link here
   - Responds to user input for paddle movement.
   - Ends the game when conditions (time limit or collision) are met.
 
-# Interactions:
+ Interactions:
 - Creates and manages `Ball`, `Paddle`, `GameTimer`, and `GameOverScreen` objects.
 - Uses the `Event` class to predict, schedule, and process future events (collisions, screen redraws).
 - Responds to user input for moving paddles (via keyboard).
