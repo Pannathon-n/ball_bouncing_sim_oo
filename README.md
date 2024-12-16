@@ -116,4 +116,17 @@ link here
 
 ### 5. Background
 - Added a custom background in `BouncingSimulator`.
+  
+## Testing and Known Issues
 
+### Testing Methodology
+
+The project was tested manually by running the game and observing its behavior during gameplay.
+
+### Known Bugs and Issues
+
+1. **Ball Passing Through Paddle:**
+   - The ball sometimes passes through the paddle when it hits the vertical sides of the paddle. This appears to be due to incomplete collision detection logic for vertical impacts.
+
+2. **Phantom Ball Bounce:**
+   - Occasionally, the ball bounces off "air" (an empty area where there are no paddles or walls). This might be caused by inaccuracies in the paddle's hit detection logic.
