@@ -19,6 +19,7 @@ class Paddle:
         self.my_turtle.forward(self.width/2)
         self.my_turtle.pendown()
         self.my_turtle.begin_fill()
+
         for _ in range(2):
             self.my_turtle.left(90)
             self.my_turtle.forward(self.height)

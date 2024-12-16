@@ -9,6 +9,7 @@ class Event:
             self.count_a = ball_a.count
         else:
             self.count_a = -1
+
         if ball_b is not None:
             self.count_b = ball_b.count
         else:

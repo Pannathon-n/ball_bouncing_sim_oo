@@ -57,7 +57,7 @@ class GameTimer:
         self.timer_turtle.clear()
 
 class BouncingSimulator:
-    def __init__(self, num_balls, time_limit=15):
+    def __init__(self, num_balls, time_limit=20):
         self.num_balls = num_balls
         self.time_limit = time_limit
         self.ball_list = []
