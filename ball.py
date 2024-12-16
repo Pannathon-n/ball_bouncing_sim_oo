@@ -17,7 +17,6 @@ class Ball:
         
 
     def draw(self):
-        # draw a circle of radius equals to size centered at (x, y) and paint it with color
         turtle.penup()
         turtle.color(self.color)
         turtle.fillcolor(self.color)
@@ -39,17 +38,14 @@ class Ball:
         dy  = that.y - self.y
         dvx = that.vx - self.vx
         dvy = that.vy - self.vy
-        dvdr = dx*dvx + dy*dvy; # dv dot dr
-        dist = self.size + that.size   # distance between particle centers at collison
+        dvdr = dx*dvx + dy*dvy;
+        dist = self.size + that.size
 
-        # magnitude of normal force
         magnitude = 2 * self.mass * that.mass * dvdr / ((self.mass + that.mass) * dist)
 
-        # normal force, and in x and y directions
         fx = magnitude * dx / dist
         fy = magnitude * dy / dist
 
-        # update velocities according to normal force
         self.vx += fx / self.mass
         self.vy += fy / self.mass
         that.vx -= fx / that.mass
@@ -87,14 +83,10 @@ class Ball:
         drdr = dx*dx + dy*dy
         sigma = self.size + that.size
         d = (dvdr*dvdr) - dvdv * (drdr - sigma*sigma)
-        # if drdr < sigma*sigma:
-            # print("overlapping particles")
         if d < 0:
             return math.inf
         t = -(dvdr + math.sqrt(d)) / dvdv
 
-        # should't happen, but seems to be needed for some extreme inputs
-        # (floating-point precision when dvdv is close to 0, I think)
         if t <= 0:
             return math.inf
 
